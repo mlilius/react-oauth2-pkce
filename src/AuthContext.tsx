@@ -85,7 +85,7 @@ export const AuthProvider = ({ authConfig, children }: IAuthProvider) => {
     if (config?.logoutEndpoint && token) redirectToLogout(config, token, refreshToken, idToken, state, logoutHint)
   }
 
-  function login(state?: string) {
+  function login(state?: string, extraAuthParameters?: { [key: string]: string | boolean | number }) {
     clearStorage()
     setLoginInProgress(true)
     // TODO: Raise error on wrong state type in v2
@@ -94,7 +94,10 @@ export const AuthProvider = ({ authConfig, children }: IAuthProvider) => {
       console.warn(`Passed login state must be of type 'string'. Received '${state}'. Ignoring value...`)
       typeSafePassedState = undefined
     }
-    redirectToLogin(config, typeSafePassedState).catch((error) => {
+    redirectToLogin({
+      ...config,
+      extraAuthParameters: {...config.extraAuthParameters, ...extraAuthParameters}
+    }, typeSafePassedState).catch((error) => {
       console.error(error)
       setError(error.message)
       setLoginInProgress(false)
